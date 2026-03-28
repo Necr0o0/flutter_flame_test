@@ -4,6 +4,7 @@ import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
 import '../game/game.dart';
 import 'drifting_ball.dart';
+import '../scenes/gameplay_scene.dart'; // Import your new scene
 
 class Absorber extends CircleComponent with DragCallbacks, HasGameReference<AbsorbGame>, CollisionCallbacks {
   
@@ -67,7 +68,6 @@ class Absorber extends CircleComponent with DragCallbacks, HasGameReference<Abso
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    if (game.currentGameState != GameState.playing) return;
 
     if (other is GoodBall) {
       other.removeFromParent();
@@ -78,7 +78,10 @@ class Absorber extends CircleComponent with DragCallbacks, HasGameReference<Abso
       
     } else if (other is BadBall) {
       other.removeFromParent();
-      game.loseLife();
+     if (parent is GameplayScene) {
+        final scene = parent as GameplayScene;
+        scene.loseLife();
+      }
     }
   }
 }

@@ -1,82 +1,73 @@
 import 'package:flame/game.dart';
-import 'package:flutter/foundation.dart'; // Required for ValueNotifier
-import '../components/absorber.dart';
-import '../managers/ball_manager.dart';
+import 'package:flutter/foundation.dart';
+import '../scenes/gameplay_scene.dart';
 
 enum GameState { menu, playing, gameOver }
 
 class AbsorbGame extends FlameGame with HasCollisionDetection {
-  late Absorber player;
-  late BallManager ballManager;
-
   GameState currentGameState = GameState.menu;
-  
-  // 1. Wrap state in ValueNotifiers
+
   final ValueNotifier<int> lives = ValueNotifier<int>(3);
   final ValueNotifier<int> score = ValueNotifier<int>(0);
+
+  // We keep a reference to the active scene so we can destroy it easily
+  GameplayScene? _activeScene;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    ballManager = BallManager();
-    add(ballManager);
-
-    
+    // Start the app in the Main Menu state
+    goToMenu();
   }
 
   void startGame() {
-
     currentGameState = GameState.playing;
+    
+    // Clean up UI
     overlays.remove('MainMenu');
     overlays.remove('GameOver');
+    overlays.add('HudOverlay');
     
-    // 2. Reset the reactive state values
+    // Reset global data
     lives.value = 3; 
     score.value = 0;
     
-    removeWhere((component) => component is Absorber);
-    ballManager.resetGame();
+    // If a scene exists (e.g., from a quick restart), destroy it
+    if (_activeScene != null && _activeScene!.parent != null) {
+      _activeScene!.removeFromParent();
+    }
 
-    player = Absorber(position: size / 2, radius: 30);
-    add(player);
+    // CREATE AND LOAD THE NEW SCENE
+    _activeScene = GameplayScene();
+    add(_activeScene!);
     
-    // 3. Add the new Flutter HUD Overlay instead of the Flame component
-    overlays.add('HudOverlay');
+    resumeEngine(); 
+  }
+
+  void triggerGameOver() {
+    currentGameState = GameState.gameOver;
     
-    ballManager.start();
+    // Freeze the engine so the final frame stays on screen
+    pauseEngine();
+    
+    overlays.remove('HudOverlay'); 
+    overlays.add('GameOver');
   }
 
   void goToMenu() {
-    // 1. Lock the state machine immediately
     currentGameState = GameState.menu;
     
-    // 2. Clear the board of the player so they can't be hit
-    if (player.isMounted) {
-      player.removeFromParent();
+    // DESTROY THE ENTIRE GAMEPLAY SCENE
+    // This instantly kills the player, the spawner, and the update loops.
+    if (_activeScene != null && _activeScene!.parent != null) {
+      _activeScene!.removeFromParent();
+      _activeScene = null;
     }
     
-    // 3. Manage the UI
     overlays.remove('GameOver');
     overlays.remove('HudOverlay');
     overlays.add('MainMenu');
     
-    // 4. Resume the engine. This allows the balls to keep bouncing 
-    // in the background as a visual effect for the menu, but because 
-    // of our FSM locks, they won't trigger any game logic.
     resumeEngine(); 
-  }
-
-  void loseLife() {
-    if (currentGameState != GameState.playing) return;
-    // 4. Update the value
-
-    lives.value--; 
-    if (lives.value <= 0) {
-      pauseEngine();
-      currentGameState = GameState.gameOver;
-
-      overlays.remove('HudOverlay'); // Hide HUD on game over
-      overlays.add('GameOver');
-    }
   }
 }
