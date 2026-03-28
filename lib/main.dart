@@ -4,11 +4,17 @@ import 'game/game.dart';
 import 'screens/game_over.dart';
 import 'screens/main_menu.dart';
 import 'screens/hud_overlay.dart';
+import 'package:flutter/services.dart';
 
-void main() {
+Future<void> main() async {
   // Ensure Flutter bindings are initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
   
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(const AbsorbApp());
 }
 
