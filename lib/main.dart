@@ -3,6 +3,7 @@ import 'package:flame/game.dart';
 import 'game/game.dart';
 import 'screens/game_over.dart';
 import 'screens/main_menu.dart';
+import 'screens/hud_overlay.dart';
 
 void main() {
   // Ensure Flutter bindings are initialized before running the app
@@ -26,6 +27,7 @@ class AbsorbApp extends StatelessWidget {
           overlayBuilderMap: {
             'MainMenu': (context, game) => MainMenu(game: game),
             'GameOver': (context, game) => GameOverScreen(game: game),
+            'HudOverlay': (context, game) => HudOverlay(game: game)
           },
           // Display the MainMenu overlay as soon as the app starts
           initialActiveOverlays: const ['MainMenu'],

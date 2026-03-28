@@ -1,91 +1,81 @@
-import 'dart:math';
 import 'package:flame/game.dart';
-import 'package:flame/components.dart';
+import 'package:flutter/foundation.dart'; // Required for ValueNotifier
 import '../components/absorber.dart';
-import '../components/drifting_ball.dart';
+import '../managers/ball_manager.dart';
+
+enum GameState { menu, playing, gameOver }
 
 class AbsorbGame extends FlameGame with HasCollisionDetection {
   late Absorber player;
-  int lives = 3;
-  int score = 0;
+  late BallManager ballManager;
+
+  GameState currentGameState = GameState.menu;
   
-  late Timer spawnTimer;
-  final Random random = Random();
+  // 1. Wrap state in ValueNotifiers
+  final ValueNotifier<int> lives = ValueNotifier<int>(3);
+  final ValueNotifier<int> score = ValueNotifier<int>(0);
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    ballManager = BallManager();
+    add(ballManager);
+
     
-    // Set up a timer to trigger every 2 seconds, repeating 
-    spawnTimer = Timer(
-      2.0, 
-      onTick: spawnBall, 
-      repeat: true,
-    );
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    // The timer needs to be updated every frame to know when to fire
-    spawnTimer.update(dt);
-  }
-
-  void cleanLevel(){
-    // Clear any existing balls if this is a restart
-    removeWhere((component) => component is DriftingBall || component is Absorber);
   }
 
   void startGame() {
+
+    currentGameState = GameState.playing;
     overlays.remove('MainMenu');
+    overlays.remove('GameOver');
     
-    // Clear any existing balls if this is a restart
-    cleanLevel();
+    // 2. Reset the reactive state values
+    lives.value = 3; 
+    score.value = 0;
+    
+    removeWhere((component) => component is Absorber);
+    ballManager.resetGame();
 
-    lives = 3;
-    score = 0;
-
-    player = Absorber(
-      position: size / 2, 
-      radius: 30,
-    );
+    player = Absorber(position: size / 2, radius: 30);
     add(player);
     
-    spawnTimer.start(); // Start spawning balls
+    // 3. Add the new Flutter HUD Overlay instead of the Flame component
+    overlays.add('HudOverlay');
+    
+    ballManager.start();
   }
 
-  void spawnBall() {
-    // Randomly pick a position within the screen boundaries
-    final randomX = random.nextDouble() * size.x;
-    final randomY = random.nextDouble() * size.y;
-    final position = Vector2(randomX, randomY);
-
-    // Give the ball a random velocity between -100 and 100 on both axes
-    final velocity = Vector2(
-      (random.nextDouble() - 0.5) * 200,
-      (random.nextDouble() - 0.5) * 200,
-    );
-
-    // 70% chance to spawn a GoodBall, 30% chance for a BadBall
-    final isGood = random.nextDouble() > 0.3;
-
-    if (isGood) {
-      add(GoodBall(position: position, velocity: velocity));
-    } else {
-      add(BadBall(position: position, velocity: velocity));
+  void goToMenu() {
+    // 1. Lock the state machine immediately
+    currentGameState = GameState.menu;
+    
+    // 2. Clear the board of the player so they can't be hit
+    if (player.isMounted) {
+      player.removeFromParent();
     }
-
-    // Progressively increase difficulty by slightly reducing the timer limit 
-    if (spawnTimer.limit > 0.5) {
-      // Decrease the wait time by 2% every time a ball spawns
-      spawnTimer.limit *= 0.98; 
-    }
+    
+    // 3. Manage the UI
+    overlays.remove('GameOver');
+    overlays.remove('HudOverlay');
+    overlays.add('MainMenu');
+    
+    // 4. Resume the engine. This allows the balls to keep bouncing 
+    // in the background as a visual effect for the menu, but because 
+    // of our FSM locks, they won't trigger any game logic.
+    resumeEngine(); 
   }
+
   void loseLife() {
-    lives--;
-    if (lives <= 0) {
-      // Pause the game and show the Game Over screen (we will build this next)
+    if (currentGameState != GameState.playing) return;
+    // 4. Update the value
+
+    lives.value--; 
+    if (lives.value <= 0) {
       pauseEngine();
+      currentGameState = GameState.gameOver;
+
+      overlays.remove('HudOverlay'); // Hide HUD on game over
       overlays.add('GameOver');
     }
   }

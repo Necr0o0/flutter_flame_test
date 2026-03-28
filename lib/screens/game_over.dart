@@ -25,7 +25,7 @@ class GameOverScreen extends StatelessWidget {
             const SizedBox(height: 20),
             // Display the final score here
             Text(
-              'Final Score: ${game.score}',
+              'Final Score: ${game.score.value}',
               style: const TextStyle(
                 fontSize: 32,
                 color: Colors.white,
@@ -34,13 +34,7 @@ class GameOverScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                // Remove the Game Over screen
-                game.overlays.remove('GameOver');
-                game.cleanLevel();
-                // Resume the game engine
-                game.resumeEngine();
-                // Restart the game state
-                game.overlays.add('MainMenu'); // Show the main menu again for a fresh start
+                game.goToMenu();
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
