@@ -67,7 +67,7 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
     );
     
     // Add it to the game tree (this instantly assigns ball.parent)
-    game.add(ball);
+    add(ball);
 
     // Exponential decay of the timer limit to increase difficulty
     if (_spawnTimer.limit > 0.3) {
