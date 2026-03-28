@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flame/components.dart';
+import 'package:test_hopx/scenes/gameplay_scene.dart';
 import '../components/drifting_ball.dart';
 import '../game/game.dart';
 
@@ -56,11 +57,26 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
     final isGood = _random.nextDouble() > 0.3;
     final ball = _getAvailableBall(isGood);
 
-    // Reinitialize physics state
-    ball.position = Vector2(
-      _random.nextDouble() * game.size.x, 
-      _random.nextDouble() * game.size.y
-    );
+    Vector2 randomPosition = Vector2.zero();
+    bool isSafe = false;
+
+    final scene = parent as GameplayScene; 
+    const double safeDistance = 150.0;
+
+
+    while (!isSafe) {
+      randomPosition = Vector2(
+        _random.nextDouble() * game.size.x, 
+        _random.nextDouble() * game.size.y,
+      );
+      
+      // Calculate the distance between this random spot and the player's current location
+      if (randomPosition.distanceTo(scene.player.position) > safeDistance + scene.player.radius) {
+        isSafe = true; // We found a good spot! Break the loop.
+      }
+    }
+    ball.position = randomPosition;
+   
     ball.velocity = Vector2(
       (_random.nextDouble() - 0.5) * 200, 
       (_random.nextDouble() - 0.5) * 200
