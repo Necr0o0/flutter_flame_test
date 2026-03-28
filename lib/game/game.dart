@@ -1,8 +1,9 @@
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../scenes/gameplay_scene.dart';
 
-enum GameState { menu, playing, gameOver }
+enum GameState { menu, playing, gameOver, paused }
 
 class AbsorbGame extends FlameGame with HasCollisionDetection {
   GameState currentGameState = GameState.menu;
@@ -70,4 +71,32 @@ class AbsorbGame extends FlameGame with HasCollisionDetection {
     
     resumeEngine(); 
   }
+
+@override
+  void lifecycleStateChange(AppLifecycleState state) {
+    super.lifecycleStateChange(state);
+
+    // If the game is currently being played and the user leaves the app/tab
+    if (currentGameState == GameState.playing) {
+      if (state == AppLifecycleState.paused || 
+          state == AppLifecycleState.inactive || 
+          state == AppLifecycleState.hidden) {
+        
+        triggerPause();
+      }
+    }
+  }
+
+  void triggerPause() {
+    currentGameState = GameState.paused;
+    pauseEngine(); // Freeze the physics and timers
+    overlays.add('PauseMenu'); // Show the pause screen
+  }
+
+  void resumePlaying() {
+    currentGameState = GameState.playing;
+    overlays.remove('PauseMenu');
+    resumeEngine(); // Unfreeze the engine
+  }
+
 }
