@@ -38,7 +38,7 @@ class Absorber extends CircleComponent with DragCallbacks, HasGameReference<Abso
       velocity.scale(friction);
       
       // Kill the velocity entirely if it gets too slow (avoids infinite micro-calculations)
-      if (velocity.length < 10) {
+      if (velocity.length < 1) {
         velocity.setZero();
       }
     }
