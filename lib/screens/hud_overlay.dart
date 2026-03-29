@@ -17,7 +17,7 @@ class HudOverlay extends StatelessWidget {
           children: [
             // Listen to the score notifier
             ValueListenableBuilder<int>(
-              valueListenable: game.score,
+              valueListenable: game.playerData.score,
               builder: (context, currentScore, child) {
                 return Text(
                   'Score: $currentScore',
@@ -32,7 +32,7 @@ class HudOverlay extends StatelessWidget {
             const SizedBox(height: 8),
             // Listen to the lives notifier
             ValueListenableBuilder<int>(
-              valueListenable: game.lives,
+              valueListenable: game.playerData.lives,
               builder: (context, currentLives, child) {
                 return Text(
                   'Lives: $currentLives',

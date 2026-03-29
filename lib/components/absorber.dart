@@ -71,7 +71,7 @@ class Absorber extends CircleComponent with DragCallbacks, HasGameReference<Abso
 
     if (other is GoodBall) {
       other.removeFromParent();
-      game.score.value += 1; 
+      game.playerData.score.value += 1; 
       
       radius += 1.5; 
       children.whereType<CircleHitbox>().first.radius = radius; 

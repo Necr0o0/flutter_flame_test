@@ -9,7 +9,7 @@ class GameOverScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black87, // Slightly darker than the main menu
+      color: Colors.black87,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -23,25 +23,53 @@ class GameOverScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Display the final score here
+            
+            // Current Score
             Text(
-              'Final Score: ${game.score.value}',
+              'Score: ${game.playerData.score.value}',
               style: const TextStyle(
                 fontSize: 32,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                game.goToMenu();
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                textStyle: const TextStyle(fontSize: 24),
+            const SizedBox(height: 10),
+            
+            // High Score
+            Text(
+              'Best: ${game.playerData.highScore.value}',
+              style: const TextStyle(
+                fontSize: 24,
+                color: Colors.amber, // Give it a gold color!
+                fontWeight: FontWeight.bold,
               ),
-              child: const Text('Restart'),
             ),
+            
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    game.startGame();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text('Restart', style: TextStyle(fontSize: 20)),
+                ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    game.goToMenu();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[800],
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text('Menu', style: TextStyle(fontSize: 20)),
+                ),
+              ],
+            )
           ],
         ),
       ),

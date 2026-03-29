@@ -2,22 +2,20 @@ import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../scenes/gameplay_scene.dart';
-
+import '../data/player_data.dart';
 enum GameState { menu, playing, gameOver, paused }
 
 class AbsorbGame extends FlameGame with HasCollisionDetection {
   GameState currentGameState = GameState.menu;
-
-  final ValueNotifier<int> lives = ValueNotifier<int>(3);
-  final ValueNotifier<int> score = ValueNotifier<int>(0);
-
   // We keep a reference to the active scene so we can destroy it easily
   GameplayScene? _activeScene;
+  final PlayerData playerData = PlayerData();
+
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    // Start the app in the Main Menu state
+    await playerData.loadHighScore();
     goToMenu();
   }
 
@@ -29,9 +27,7 @@ class AbsorbGame extends FlameGame with HasCollisionDetection {
     overlays.remove('GameOver');
     overlays.add('HudOverlay');
     
-    // Reset global data
-    lives.value = 3; 
-    score.value = 0;
+    playerData.reset();
     
     // If a scene exists (e.g., from a quick restart), destroy it
     if (_activeScene != null && _activeScene!.parent != null) {
@@ -45,11 +41,13 @@ class AbsorbGame extends FlameGame with HasCollisionDetection {
     resumeEngine(); 
   }
 
-  void triggerGameOver() {
-    currentGameState = GameState.gameOver;
+Future<void> triggerGameOver() async {    
+  currentGameState = GameState.gameOver;
     
     // Freeze the engine so the final frame stays on screen
     pauseEngine();
+    
+    await playerData.checkAndSaveHighScore();
     
     overlays.remove('HudOverlay'); 
     overlays.add('GameOver');

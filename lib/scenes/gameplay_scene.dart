@@ -29,9 +29,9 @@ class GameplayScene extends Component with HasGameReference<AbsorbGame> {
   // Look how clean this is. No "if (playing)" checks needed!
   // If this scene is in the engine, the game is running.
   void loseLife() {
-    game.lives.value--; 
+    game.playerData.lives.value--; 
     
-    if (game.lives.value <= 0) {
+    if (game.playerData.lives.value <= 0) {
       // Tell the main game class to handle the UI routing
       game.triggerGameOver();
     }
