@@ -2,8 +2,8 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
-import '../game/game.dart';
-import 'drifting_ball.dart';
+import '../game/absorb_game.dart';
+import 'drifting_ball_entity.dart';
 import '../scenes/gameplay_scene.dart'; // Import your new scene
 
 class Absorber extends CircleComponent with DragCallbacks, HasGameReference<AbsorbGame>, CollisionCallbacks {

@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:test_hopx/scenes/gameplay_scene.dart';
-import '../components/drifting_ball.dart';
-import '../game/game.dart';
+import '../entities/drifting_ball_entity.dart';
+import '../game/absorb_game.dart';
 
 class BallManager extends Component with HasGameReference<AbsorbGame> {
   // We maintain our lists as contiguous memory blocks

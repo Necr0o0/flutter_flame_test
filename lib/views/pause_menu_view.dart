@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../game/game.dart';
+import '../game/absorb_game.dart';
 
-class PauseMenu extends StatelessWidget {
+class PauseMenuView extends StatelessWidget {
   final AbsorbGame game;
 
-  const PauseMenu({super.key, required this.game});
+  const PauseMenuView({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {

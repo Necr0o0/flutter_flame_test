@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../game/game.dart';
+import '../game/absorb_game.dart';
 
-class GameOverScreen extends StatelessWidget {
+class GameOverView extends StatelessWidget {
   final AbsorbGame game;
 
-  const GameOverScreen({super.key, required this.game});
+  const GameOverView({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {

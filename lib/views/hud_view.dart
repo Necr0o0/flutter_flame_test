@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../game/game.dart';
+import '../game/absorb_game.dart';
 
-class HudOverlay extends StatelessWidget {
+class HudView extends StatelessWidget {
   final AbsorbGame game;
 
-  const HudOverlay({super.key, required this.game});
+  const HudView({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {

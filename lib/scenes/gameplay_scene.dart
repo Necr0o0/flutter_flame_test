@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
-import '../components/absorber.dart';
+import '../entities/absorber_entity.dart';
 import '../managers/ball_manager.dart';
-import '../game/game.dart';
+import '../game/absorb_game.dart';
 
 class GameplayScene extends Component with HasGameReference<AbsorbGame> {
   late Absorber player;

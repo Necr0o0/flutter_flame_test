@@ -25,11 +25,22 @@ class DriftingBall extends CircleComponent with HasGameReference, CollisionCallb
     position += velocity * dt;
 
     // Wall collision logic
-    if (position.x - radius < 0 && velocity.x < 0) velocity.x = -velocity.x;
-    else if (position.x + radius > game.size.x && velocity.x > 0) velocity.x = -velocity.x;
-
-    if (position.y - radius < 0 && velocity.y < 0) velocity.y = -velocity.y;
-    else if (position.y + radius > game.size.y && velocity.y > 0) velocity.y = -velocity.y;
+    if (position.x - radius < 0 && velocity.x < 0)
+    {
+      velocity.x = -velocity.x;
+    // ignore: curly_braces_in_flow_control_structures
+    } else if (position.x + radius > game.size.x && velocity.x > 0)
+    {
+      velocity.x = -velocity.x;
+    }
+    if (position.y - radius < 0 && velocity.y < 0)
+    {
+      velocity.y = -velocity.y;
+    } 
+    else if (position.y + radius > game.size.y && velocity.y > 0)
+    {
+      velocity.y = -velocity.y;
+    } 
   }
 
   @override
