@@ -11,6 +11,8 @@ class PhysicsComponent extends Component with ParentIsA<PositionComponent>, HasG
   final double friction;
   final BoundaryBehavior boundaryBehavior;
 
+  final double _lowestSpeedThreshold = 10.0; // Below this speed, we consider the object stopped
+
   PhysicsComponent({
     this.friction = 1.0, // Default to 1.0 (no friction)
     this.boundaryBehavior = BoundaryBehavior.bounce, // Default to bouncing
@@ -27,7 +29,7 @@ class PhysicsComponent extends Component with ParentIsA<PositionComponent>, HasG
       // Only apply friction math if friction is actually active (< 1.0)
       if (friction < 1.0) {
         velocity.scale(friction);
-        if (velocity.length < 10) {
+        if (velocity.length < _lowestSpeedThreshold) {
           velocity.setZero();
         }
       }

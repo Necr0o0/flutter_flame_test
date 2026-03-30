@@ -8,11 +8,15 @@ class PlayerData {
   final ValueNotifier<int> highScore = ValueNotifier<int>(0);
 
   // Initialize the high score from local storage
-  Future<void> loadHighScore() async {
+  Future<void> _loadHighScore() async {
     final prefs = await SharedPreferences.getInstance();
     highScore.value = prefs.getInt('highScore') ?? 0;
   }
 
+  Future<void> loadPlayerData() async {
+    await _loadHighScore();
+    reset(); // Ensure lives and score are set to their initial values
+  }
   // Reset for a new playthrough
   void reset() {
     lives.value = 3; 

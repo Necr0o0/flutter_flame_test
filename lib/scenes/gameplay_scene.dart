@@ -11,29 +11,32 @@ class GameplayScene extends Component with HasGameReference<AbsorbGame> {
   Future<void> onLoad() async {
     super.onLoad();
     
-    // Initialize gameplay-specific managers
     ballManager = BallManager();
     add(ballManager);
 
-    // Initialize the player
+    // Subscribe to the player's signals right here in the constructor
     player = AbsorberEntity(
       position: game.size / 2, 
       radius: 30,
+      onGoodBallEaten: () {
+        // Scene handles the data routing
+        game.playerData.score.value += 1;
+      },
+      onBadBallEaten: () {
+        // Scene handles the damage routing
+        loseLife();
+      }
     );
-    add(player);
     
-    // Start the spawner
+    add(player);
     ballManager.start();
   }
 
-  // Look how clean this is. No "if (playing)" checks needed!
-  // If this scene is in the engine, the game is running.
   void loseLife() {
     game.playerData.lives.value--; 
     
     if (game.playerData.lives.value <= 0) {
-      // Tell the main game class to handle the UI routing
-      game.triggerGameOver();
+      game.gameOver();
     }
   }
 }

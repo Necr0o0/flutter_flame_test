@@ -50,7 +50,7 @@ class GameOverView extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    game.startGame();
+                    game.play();
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -60,7 +60,7 @@ class GameOverView extends StatelessWidget {
                 const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
-                    game.goToMenu();
+                    game.menu();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[800],

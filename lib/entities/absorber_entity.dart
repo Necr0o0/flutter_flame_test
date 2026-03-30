@@ -2,19 +2,26 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
-import '../game/absorb_game.dart';
+
 import 'ball_entity.dart';
-import '../scenes/gameplay_scene.dart'; // Import your new scene
 import '../components/physics2d_component.dart';
 
-class AbsorberEntity extends CircleComponent with DragCallbacks, HasGameReference<AbsorbGame>, CollisionCallbacks {
-  
+// 1. REMOVED: HasGameReference and GameplayScene imports!
+class AbsorberEntity extends CircleComponent with DragCallbacks, CollisionCallbacks {
   late final PhysicsComponent physics;
-  double maxRadius = 500.0;
-  double growthPerGoodBall = 2.0;
+  double maxRadius = 120.0;
+  double growthPerGoodBall = 1.5;
 
-  AbsorberEntity({required super.position, required super.radius}) : 
-  super(anchor: Anchor.center, paint: Paint()..color = Colors.blueAccent) {
+  // 2. Define the "Signals" (Callbacks)
+  final VoidCallback? onGoodBallEaten;
+  final VoidCallback? onBadBallEaten;
+
+  AbsorberEntity({
+    required super.position, 
+    required super.radius,
+    this.onGoodBallEaten, // Optional callback
+    this.onBadBallEaten,  // Optional callback
+  }) : super(anchor: Anchor.center, paint: Paint()..color = Colors.blueAccent) {
     physics = PhysicsComponent(
       friction: 0.92, 
       boundaryBehavior: BoundaryBehavior.clamp,
@@ -31,16 +38,15 @@ class AbsorberEntity extends CircleComponent with DragCallbacks, HasGameReferenc
   @override
   void onDragUpdate(DragUpdateEvent event) {
     position += event.localDelta;
-    physics.velocity.setZero(); // Stop momentum while dragging
+    physics.velocity.setZero(); 
     super.onDragUpdate(event);
   }
 
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
-    physics.velocity = event.velocity; // Pass the flick velocity to physics
+    physics.velocity = event.velocity; 
   }
-  
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
@@ -48,21 +54,21 @@ class AbsorberEntity extends CircleComponent with DragCallbacks, HasGameReferenc
 
     if (other is GoodBallEntity) {
       other.removeFromParent();
-      game.playerData.score.value += 1; 
       
+      // 3. Emit the signal!
+      onGoodBallEaten?.call(); 
+      
+      // Internal visual logic stays here
       if (radius < maxRadius){
         radius += growthPerGoodBall; 
         children.whereType<CircleHitbox>().first.radius = radius; 
       }
-
-     
       
     } else if (other is BadBallEntity) {
       other.removeFromParent();
-     if (parent is GameplayScene) {
-        final scene = parent as GameplayScene;
-        scene.loseLife();
-      }
+      
+      // 3. Emit the signal!
+      onBadBallEaten?.call();
     }
   }
 }

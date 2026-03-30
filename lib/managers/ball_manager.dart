@@ -28,10 +28,7 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
   @override
   void update(double dt) {
     super.update(dt);
-    // The state machine gatekeeper
-    if (game.currentGameState == GameState.playing) {
-      _spawnTimer.update(dt);
-    }
+    _spawnTimer.update(dt);
   }
 
   void start() {

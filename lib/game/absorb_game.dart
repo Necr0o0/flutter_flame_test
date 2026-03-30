@@ -1,99 +1,62 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import '../scenes/gameplay_scene.dart';
+
 import '../data/player_data.dart';
-enum GameState { menu, playing, gameOver, paused }
+import '../scenes/gameplay_scene.dart';
+import '../states/game_state.dart';
+import '../states/main_menu_state.dart';
 
 class AbsorbGame extends FlameGame with HasCollisionDetection {
-  GameState currentGameState = GameState.menu;
-  // We keep a reference to the active scene so we can destroy it easily
-  GameplayScene? _activeScene;
+  // 1. The Current State
+  GameState? _currentState;
+  
+  GameplayScene? activeScene;
   final PlayerData playerData = PlayerData();
-
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await playerData.loadHighScore();
-    goToMenu();
+    await playerData.loadPlayerData();
+
+    transitionTo( MenuState(this));
   }
 
-  void startGame() {
-    currentGameState = GameState.playing;
-    
-    // Clean up UI
-    overlays.remove('MainMenu');
-    overlays.remove('GameOver');
-    overlays.add('HudOverlay');
-    
-    playerData.reset();
-    
-    // If a scene exists (e.g., from a quick restart), destroy it
-    if (_activeScene != null && _activeScene!.parent != null) {
-      _activeScene!.removeFromParent();
+  // The State Machine Transition Hub
+  void transitionTo(GameState newState) {
+    _currentState?.exit();
+    _currentState = newState;
+    _currentState!.enter();
+  }
+
+  void clearAllOverlays() {
+    overlays.removeAll(overlays.activeOverlays.toList());
+  }
+
+  void clearActiveScene() {
+    if (activeScene != null) {
+      activeScene!.removeFromParent();
+      activeScene = null;
     }
-
-    // CREATE AND LOAD THE NEW SCENE
-    _activeScene = GameplayScene();
-    add(_activeScene!);
-    
-    resumeEngine(); 
   }
 
-Future<void> triggerGameOver() async {    
-  currentGameState = GameState.gameOver;
-    
-    // Freeze the engine so the final frame stays on screen
-    pauseEngine();
-    
-    await playerData.checkAndSaveHighScore();
-    
-    overlays.remove('HudOverlay'); 
-    overlays.add('GameOver');
-  }
-
-  void goToMenu() {
-    currentGameState = GameState.menu;
-    
-    // DESTROY THE ENTIRE GAMEPLAY SCENE
-    // This instantly kills the player, the spawner, and the update loops.
-    if (_activeScene != null && _activeScene!.parent != null) {
-      _activeScene!.removeFromParent();
-      _activeScene = null;
-    }
-    
-    overlays.remove('GameOver');
-    overlays.remove('HudOverlay');
-    overlays.add('MainMenu');
-    
-    resumeEngine(); 
-  }
-
-@override
+  // --- Delegate OS events to the state ---
+  @override
   void lifecycleStateChange(AppLifecycleState state) {
     super.lifecycleStateChange(state);
-
-    // If the game is currently being played and the user leaves the app/tab
-    if (currentGameState == GameState.playing) {
-      if (state == AppLifecycleState.paused || 
-          state == AppLifecycleState.inactive || 
-          state == AppLifecycleState.hidden) {
-        
-        triggerPause();
-      }
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      
+      // If we are playing, the PlayingState will handle this.
+      // If we are in the Menu, the MenuState simply ignores it!
+      _currentState?.pause(); 
     }
   }
 
-  void triggerPause() {
-    currentGameState = GameState.paused;
-    pauseEngine(); // Freeze the physics and timers
-    overlays.add('PauseMenu'); // Show the pause screen
-  }
-
-  void resumePlaying() {
-    currentGameState = GameState.playing;
-    overlays.remove('PauseMenu');
-    resumeEngine(); // Unfreeze the engine
-  }
-
+  // --- Public getters for the UI to trigger actions ---
+  void play() => _currentState?.play();
+  void pause() => _currentState?.pause();
+  void resume() => _currentState?.resume();
+  void menu() => _currentState?.menu();
+  void gameOver() => _currentState?.gameOver();
 }
