@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
-import '../components/physics2D_component.dart';
+import '../components/physics2d_component.dart';
 
 class BallEntity extends CircleComponent with CollisionCallbacks {
   // The Entity owns the physics component as a child
@@ -37,22 +37,33 @@ class BallEntity extends CircleComponent with CollisionCallbacks {
     super.onCollisionStart(intersectionPoints, other);
     
     if (other is BallEntity) {
-      // Sticky Collision Fix
-      final deltaPosition = other.position - position;
-      final deltaVelocity = other.velocity - velocity;
-      
+      // Calculate the vector between the two centers
+      final deltaPosition = position - other.position;
+      final distance = deltaPosition.length;
+      final minDistance = radius + other.radius;
+
+     
+      // If they are overlapping, forcefully push them apart along the collision normal
+      if (distance < minDistance && distance > 0) {
+        final overlap = minDistance - distance;
+        // Divide the overlap by 2 so they both push away equally
+        final separationVector = (deltaPosition / distance) * (overlap / 2);
+        
+        position += separationVector;
+        other.position -= separationVector;
+      }
+
+      //Only bounce if they are moving towards each other)
+      final deltaVelocity = velocity - other.velocity;
       if (deltaPosition.dot(deltaVelocity) < 0) {
-        if (hashCode < other.hashCode) {
-          final temp = velocity.clone();
-          velocity = other.velocity;
-          other.velocity = temp;
-        }
+        // Simple mass-less elastic collision (velocity swap)
+        final temp = velocity.clone();
+        velocity = other.velocity;
+        other.velocity = temp;
       }
     }
   }
 }
-
-// --- Specific Implementations ---
 
 class GoodBallEntity extends BallEntity {
   GoodBallEntity() : super(radius: 15, paint: Paint()..color = Colors.greenAccent);
