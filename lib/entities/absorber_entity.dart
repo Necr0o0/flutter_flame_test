@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import '../game/absorb_game.dart';
 import 'ball_entity.dart';
 import '../scenes/gameplay_scene.dart'; // Import your new scene
-import '../components/physics2D_component.dart';
+import '../components/physics2d_component.dart';
 
 class AbsorberEntity extends CircleComponent with DragCallbacks, HasGameReference<AbsorbGame>, CollisionCallbacks {
   
   late final PhysicsComponent physics;
+  double maxRadius = 500.0;
+  double growthPerGoodBall = 2.0;
 
   AbsorberEntity({required super.position, required super.radius}) : 
   super(anchor: Anchor.center, paint: Paint()..color = Colors.blueAccent) {
@@ -18,7 +20,7 @@ class AbsorberEntity extends CircleComponent with DragCallbacks, HasGameReferenc
       boundaryBehavior: BoundaryBehavior.clamp,
     );
   }
-  
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
@@ -48,8 +50,12 @@ class AbsorberEntity extends CircleComponent with DragCallbacks, HasGameReferenc
       other.removeFromParent();
       game.playerData.score.value += 1; 
       
-      radius += 1.5; 
-      children.whereType<CircleHitbox>().first.radius = radius; 
+      if (radius < maxRadius){
+        radius += growthPerGoodBall; 
+        children.whereType<CircleHitbox>().first.radius = radius; 
+      }
+
+     
       
     } else if (other is BadBallEntity) {
       other.removeFromParent();
