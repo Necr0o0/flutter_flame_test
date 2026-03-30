@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:test_hopx/scenes/gameplay_scene.dart';
-import '../entities/drifting_ball_entity.dart';
+import '../entities/ball_entity.dart';
 import '../game/absorb_game.dart';
 
 class BallManager extends Component with HasGameReference<AbsorbGame> {
   // We maintain our lists as contiguous memory blocks
-  final List<GoodBall> _goodPool = [];
-  final List<BadBall> _badPool = [];
+  final List<GoodBallEntity> _goodPool = [];
+  final List<BadBallEntity> _badPool = [];
   
   late Timer _spawnTimer;
   final Random _random = Random();
@@ -18,8 +18,8 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
     
     // Pre-allocate the initial heap to prevent garbage collection spikes
     for (int i = 0; i < 40; i++) {
-      _goodPool.add(GoodBall());
-      _badPool.add(BadBall());
+      _goodPool.add(GoodBallEntity());
+      _badPool.add(BadBallEntity());
     }
     
     _spawnTimer = Timer(1.0, onTick: _spawnBall, repeat: true);
@@ -91,7 +91,7 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
     }
   }
 
-  DriftingBall _getAvailableBall(bool isGood) {
+  BallEntity _getAvailableBall(bool isGood) {
     if (isGood) {
       try {
         // SYNCHRONOUS CHECK: If parent is null, it is definitively detached.
@@ -100,7 +100,7 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
         return _goodPool.firstWhere((ball) => ball.parent == null && !ball.isRemoving);
       } catch (e) {
         // Dynamic Allocation Fallback
-        final newBall = GoodBall();
+        final newBall = GoodBallEntity();
         _goodPool.add(newBall);
         return newBall;
       }
@@ -108,7 +108,7 @@ class BallManager extends Component with HasGameReference<AbsorbGame> {
       try {
         return _badPool.firstWhere((ball) => ball.parent == null && !ball.isRemoving);
       } catch (e) {
-        final newBall = BadBall();
+        final newBall = BadBallEntity();
         _badPool.add(newBall);
         return newBall;
       }

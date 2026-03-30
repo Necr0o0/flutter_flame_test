@@ -4,7 +4,7 @@ import '../managers/ball_manager.dart';
 import '../game/absorb_game.dart';
 
 class GameplayScene extends Component with HasGameReference<AbsorbGame> {
-  late Absorber player;
+  late AbsorberEntity player;
   late BallManager ballManager;
 
   @override
@@ -16,7 +16,7 @@ class GameplayScene extends Component with HasGameReference<AbsorbGame> {
     add(ballManager);
 
     // Initialize the player
-    player = Absorber(
+    player = AbsorberEntity(
       position: game.size / 2, 
       radius: 30,
     );
