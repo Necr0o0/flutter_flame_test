@@ -1,6 +1,9 @@
-name: test_hopx
-description: "A new Flutter project."
+name: absorb
+
+description: A mobile game built with Flutter and Flame Engine where players control an absorber entity to collect balls while avoiding obstacles.
+
 publish_to: 'none'
+
 version: 0.1.0+1
 
 environment:
