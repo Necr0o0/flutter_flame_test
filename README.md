@@ -67,7 +67,7 @@ Ensure you have the Flutter SDK installed and configured for mobile development.
 flutter clean
 flutter pub get
 flutter run
-
+```
 **2. Build a Release APK for Android:**
 
 ```bash
